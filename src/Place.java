@@ -14,6 +14,7 @@ public class Place {
     private Place west;
     private boolean isStart;
     private List<String> items;
+    private static List<Place> places = new ArrayList<>();
 
     public Place(String room, String name, String description) {
         this.room = room;
@@ -54,14 +55,18 @@ public class Place {
     public List<String> getItems() {return items;}
     public void setItems(List<String> items) {this.items = items;}
 
-    public static Place findPlace(String room, List<Place> rooms) {
-        for (Place rm : rooms) {
+    public static Place findPlace(String room) {
+        for (Place rm : places) {
             String roomName = rm.getRoom();
             if (room.equals(roomName)) {
                 return rm;
             }
         }
         return null;
+    }
+
+    public static void clearRooms() {
+        places.clear();
     }
 
     public static Place setting(String fileName) throws Exception {
@@ -81,7 +86,6 @@ public class Place {
             
         }
 
-        List<Place> places = new ArrayList<>();
         for (int i = 0; i < (map.size() - 1); i++){
             List<String> rooms = map.get(i);
             Place place = new Place(rooms.get(0), rooms.get(1), rooms.get(2));
@@ -92,39 +96,26 @@ public class Place {
             for (int j = 3; j < (map.get(i).size()); j++) {
                 String[] dir = map.get(i).get(j).split(" ");
                 switch (dir[0]) {
-                    case "north": places.get(i).setNorth(findPlace(dir[1], places));
+                    case "north": places.get(i).setNorth(findPlace(dir[1]));
                      break;
-                    case "south": places.get(i).setSouth(findPlace(dir[1], places));
+                    case "south": places.get(i).setSouth(findPlace(dir[1]));
                      break;
-                    case "east": places.get(i).setEast(findPlace(dir[1], places));
+                    case "east": places.get(i).setEast(findPlace(dir[1]));
                      break;
-                    case "west": places.get(i).setWest(findPlace(dir[1], places));
+                    case "west": places.get(i).setWest(findPlace(dir[1]));
                      break;    
-                    default: break;               
+                    default: places.get(i).getItems().add(dir[0]);
+                    break;               
                 }
             }
         }
 
-
         String start = map.get(map.size()-1).get(0);
-        Place startPlace = findPlace(start.trim(), places);        
+        Place startPlace = findPlace(start.trim());        
         startPlace.setStart(true);
 
         br.close();
-        return startPlace;
-
-        // for (int i = 1; i < map.size(); i++) {
-        //     List<String> rooms = map.get(i);
-        //     Place place = new Place(rooms.get(0), rooms.get(1), rooms.get(2));
-        //     for (int j = 3; j < rooms.size(); j++) {
-        //         String[] str = line.trim().split(" ");
-        //         switch (str[0]) {
-        //             case "north" : place.setNorth(str[1]);
-        //         }
-        //     }
-
-        // }
-        
+        return startPlace;        
     }
 
 }
